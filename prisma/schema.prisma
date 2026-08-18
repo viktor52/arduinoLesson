@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model User {
+  id                    String            @id @default(cuid())
+  email                 String            @unique
+  username              String            @unique
+  passwordHash          String
+  displayName           String?
+  avatarUrl             String?
+  role                  Role              @default(USER)
+  xp                    Int               @default(0)
+  level                 Int               @default(1)
+  streak                Int               @default(0)
+  lastActiveDate        DateTime?
+  completedAssignments  Int               @default(0)
+  averageScore          Float             @default(0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  assignments           Assignment[]
+  submissions           Submission[]
+  sessions              Session[]
+  achievements          UserAchievement[]
+  bookmarks             Bookmark[]
+  notes                 Note[]
+  aiFeedbacks           AiFeedback[]
+  dailyChallenges       DailyChallenge[]
+  questionProgress      QuestionProgress[]
+  syntaxExamAssignments SyntaxExamAssignment[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Assignment {
+  id                  String     @id @default(cuid())
+  userId              String
+  title               String
+  objective           String
+  difficulty          Int
+  topic               String?
+  components          String[]
+  instructions        String[]
+  hint                String
+  starterCode         String     @db.Text
+  solutionCode        String     @db.Text
+  testVariables       String[]
+  syntaxConcepts      String[]
+  estimatedMinutes    Int        @default(15)
+  circuitDiagramUrl   String?
+  isTemplate          Boolean    @default(false)
+  isDailyChallenge    Boolean    @default(false)
+  isFavorite          Boolean    @default(false)
+  solutionRevealed    Boolean    @default(false)
+  gradingDisabled     Boolean    @default(false)
+  savedCode           String?    @db.Text
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  bookmarks   Bookmark[]
+  notes       Note[]
+  aiFeedbacks AiFeedback[]
+
+  @@index([userId])
+  @@index([topic])
+  @@index([difficulty])
+  @@map("assignments")
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String
+  code         String   @db.Text
+  score        Int      @default(0)
+  passed       Boolean  @default(false)
+  feedback     Json?
+  mistakes     String[]
+  suggestions  String[]
+  tests        Json?
+  hintLevel    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  aiFeedback AiFeedback?
+
+  @@index([userId])
+  @@index([assignmentId])
+  @@map("submissions")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  icon        String
+  xpReward    Int      @default(50)
+  createdAt   DateTime @default(now())
+
+  users UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model AiFeedback {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String
+  submissionId String?  @unique
+  type         String
+  content      Json
+  createdAt    DateTime @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment Assignment  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([assignmentId])
+  @@map("ai_feedbacks")
+}
+
+model Bookmark {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assignmentId])
+  @@map("bookmarks")
+}
+
+model Note {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String?
+  title        String
+  content      String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("notes")
+}
+
+model DailyChallenge {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String
+  date         DateTime @db.Date
+  completed    Boolean  @default(false)
+  score        Int?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_challenges")
+}
+
+model PromptTemplate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  content   String   @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("prompt_templates")
+}
+
+model QuestionProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  questionId  String
+  completedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@map("question_progress")
+}
+
+model SyntaxExam {
+  id          String   @id @default(cuid())
+  title       String
+  questionIds String[]
+  createdById String
+  createdAt   DateTime @default(now())
+
+  assignments SyntaxExamAssignment[]
+
+  @@index([createdById])
+  @@map("syntax_exams")
+}
+
+model SyntaxExamAssignment {
+  id          String    @id @default(cuid())
+  examId      String
+  userId      String
+  assignedAt  DateTime  @default(now())
+  completedAt DateTime?
+  score       Int?
+  passed      Boolean   @default(false)
+
+  exam      SyntaxExam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses SyntaxExamAnswer[]
+
+  @@unique([examId, userId])
+  @@index([userId])
+  @@index([examId])
+  @@map("syntax_exam_assignments")
+}
+
+model SyntaxExamAnswer {
+  id           String   @id @default(cuid())
+  assignmentId String
+  questionId   String
+  answer       String   @db.Text
+  passed       Boolean  @default(false)
+  submittedAt  DateTime @default(now())
+
+  assignment SyntaxExamAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, questionId])
+  @@map("syntax_exam_answers")
+}

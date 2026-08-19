@@ -17,8 +17,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@arduino/shared": ["../shared/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../shared/src"]
 }

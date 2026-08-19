@@ -23,7 +23,7 @@ export function createApp() {
 
   app.use(helmet());
   app.use(cors({
-    origin: config.clientUrl,
+    origin: config.clientUrl.split(',').map((s) => s.trim()),
     credentials: true,
   }));
   app.use(express.json({ limit: '1mb' }));

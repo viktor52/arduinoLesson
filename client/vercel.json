@@ -1,0 +1,16 @@
+{
+  "installCommand": "cd .. && npm install",
+  "buildCommand": "cd .. && npm run vercel-build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "includeFiles": "{../../prisma/**,../../node_modules/.prisma/**,../../node_modules/@prisma/client/**,../../server/dist/**,../../shared/dist/**}"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { prisma } from './lib/prisma';
 import { seedAchievements } from './services/progressService';
 import { seedAssignmentCatalog } from './services/catalogSeedService';

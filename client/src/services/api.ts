@@ -20,6 +20,7 @@ import type {
 } from '@arduino/shared';
 
 const api = axios.create({
+  // Same-origin /api on Vercel; override with VITE_API_URL only for split deployments
   baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
 });

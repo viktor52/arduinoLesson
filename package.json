@@ -13,6 +13,7 @@
     "dev:server": "npm run dev --workspace=server",
     "dev:client": "npm run dev --workspace=client",
     "build": "npm run build --workspace=shared && npm run build --workspace=server && npm run build --workspace=client",
+    "vercel-build": "npx prisma generate && npm run build --workspace=shared && npm run build --workspace=server && npm run build --workspace=client",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
@@ -22,6 +23,7 @@
     "docker:build": "docker compose build"
   },
   "devDependencies": {
+    "@vercel/node": "^5.3.6",
     "concurrently": "^9.1.2",
     "prisma": "^6.5.0"
   }

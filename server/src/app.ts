@@ -18,12 +18,37 @@ import questionsRoutes from './routes/questions';
 import adminExamsRoutes from './routes/adminExams';
 import examsRoutes from './routes/exams';
 
+function resolveCorsOrigin(
+  origin: string | undefined,
+  callback: (err: Error | null, allow?: boolean) => void
+) {
+  if (!origin) {
+    callback(null, true);
+    return;
+  }
+
+  const allowed = config.clientUrl
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (allowed.includes('*') || allowed.includes(origin) || /\.vercel\.app$/i.test(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  callback(null, false);
+}
+
 export function createApp() {
   const app = express();
 
+  // Required behind Vercel's reverse proxy (rate limiting / IPs)
+  app.set('trust proxy', 1);
+
   app.use(helmet());
   app.use(cors({
-    origin: config.clientUrl.split(',').map((s) => s.trim()),
+    origin: resolveCorsOrigin,
     credentials: true,
   }));
   app.use(express.json({ limit: '1mb' }));

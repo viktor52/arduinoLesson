@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
+// v0 preview keeps project-managed variables outside the repository. Load that
+// file for local server processes, while preserving normal deployment env vars.
+dotenv.config({ path: '/vercel/share/.env.project' });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();

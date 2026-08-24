@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
+// v0 preview keeps project-managed variables outside the repository. Load that
+// file for local server processes, while preserving normal deployment env vars.
+dotenv.config({ path: '/vercel/share/.env.project' });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
@@ -16,7 +19,8 @@ function requireEnv(key: string, fallback?: string): string {
 export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
-  databaseUrl: requireEnv('DATABASE_URL'),
+  // Prefer the Supabase-managed connection string, while preserving local development.
+  databaseUrl: requireEnv('POSTGRES_PRISMA_URL', process.env.DATABASE_URL),
   jwt: {
     secret: requireEnv('JWT_SECRET', 'dev-secret-change-me'),
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',

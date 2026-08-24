@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --env-file-if-exists=/vercel/share/.env.project ../node_modules/tsx/dist/cli.mjs watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/seed.ts"

@@ -10,6 +10,7 @@ import type { SyntaxQuestionCheckResult } from '@arduino/shared';
 import { questionsApi } from '../../services/api';
 import { Card, ProgressBar } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/Loading';
+import { PromptText } from '../../components/ui/PromptText';
 import { useAuth } from '../../context/AuthContext';
 
 export function QuestionsPage() {
@@ -134,7 +135,9 @@ export function QuestionsPage() {
           )}
         </div>
 
-        <p className="text-lg font-medium leading-relaxed mb-6">{current?.prompt}</p>
+        <p className="text-lg font-medium leading-relaxed mb-6">
+          {current?.prompt ? <PromptText text={current.prompt} /> : null}
+        </p>
 
         <label className="block text-sm text-gray-400 mb-2">Your answer (one line)</label>
         <input

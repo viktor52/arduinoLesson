@@ -10,6 +10,7 @@ import type { ExamCheckResult, UserExamDetail } from '@arduino/shared';
 import { examsApi } from '../../services/api';
 import { Card, ProgressBar } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/Loading';
+import { PromptText } from '../../components/ui/PromptText';
 
 export function ExamTakePage() {
   const { assignmentId } = useParams<{ assignmentId: string }>();
@@ -96,7 +97,7 @@ export function ExamTakePage() {
                   <XCircle className="w-5 h-5 text-red-400 shrink-0" />
                 )}
                 <div>
-                  <span className="text-gray-500">Q{i + 1}:</span> {q.prompt}
+                  <span className="text-gray-500">Q{i + 1}:</span> <PromptText text={q.prompt} />
                   {q.lastAnswer && (
                     <p className="font-mono text-xs text-gray-400 mt-1">{q.lastAnswer}</p>
                   )}
@@ -117,7 +118,9 @@ export function ExamTakePage() {
             )}
           </div>
 
-          <p className="text-lg font-medium mb-6">{current?.prompt}</p>
+          <p className="text-lg font-medium mb-6">
+            {current?.prompt ? <PromptText text={current.prompt} /> : null}
+          </p>
 
           <label className="block text-sm text-gray-400 mb-2">Your answer (one line)</label>
           <input

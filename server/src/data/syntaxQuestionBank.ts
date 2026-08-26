@@ -12,6 +12,17 @@ function escRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/** Bold student variable/identifier names in a short code snippet used in prompts. */
+function boldIdentifiers(expr: string): string {
+  const reserved = new Set([
+    'LOW', 'HIGH', 'true', 'false',
+    'digitalWrite', 'Serial', 'println', 'print',
+  ]);
+  return expr.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (m) =>
+    reserved.has(m) ? m : `**${m}**`
+  );
+}
+
 function q(
   order: number,
   category: string,
@@ -49,7 +60,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare an integer variable named ${name} and assign it the value ${value}.`,
+        `Declare an integer variable named **${name}** and assign it the value ${value}.`,
         `^int\\s+${escRegex(name)}\\s*=\\s*${value}\\s*;?\\s*$`,
         `Type: int ${name} = ${value};`,
         `Use the format: int ${name} = ${value};`
@@ -70,7 +81,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a constant integer ${name} set to pin ${pin}.`,
+        `Declare a constant integer **${name}** set to pin ${pin}.`,
         `^const\\s+int\\s+${escRegex(name)}\\s*=\\s*${pin}\\s*;?\\s*$`,
         `const keeps the value fixed: const int ${name} = ${pin};`,
         `Use: const int ${name} = ${pin};`
@@ -90,7 +101,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a boolean variable ${name} and set it to ${val}.`,
+        `Declare a boolean variable **${name}** and set it to ${val}.`,
         `^bool\\s+${escRegex(name)}\\s*=\\s*${val}\\s*;?\\s*$`,
         `Booleans are only true or false: bool ${name} = ${val};`,
         `Use: bool ${name} = ${val};`
@@ -109,7 +120,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a float variable ${name} with value ${value}.`,
+        `Declare a float variable **${name}** with value ${value}.`,
         `^float\\s+${escRegex(name)}\\s*=\\s*${escRegex(value)}\\s*;?\\s*$`,
         `Floats hold decimal numbers: float ${name} = ${value};`,
         `Use: float ${name} = ${value};`
@@ -126,7 +137,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a long variable ${name} set to ${value}.`,
+        `Declare a long variable **${name}** set to ${value}.`,
         `^long\\s+${escRegex(name)}\\s*=\\s*${value}\\s*;?\\s*$`,
         `long stores larger whole numbers: long ${name} = ${value};`,
         `Use: long ${name} = ${value};`
@@ -143,7 +154,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a char variable ${name} with the character '${ch}'.`,
+        `Declare a char variable **${name}** with the character '${ch}'.`,
         `^char\\s+${escRegex(name)}\\s*=\\s*'${escRegex(ch)}'\\s*;?\\s*$`,
         `Characters use single quotes: char ${name} = '${ch}';`,
         `Use: char ${name} = '${ch}';`
@@ -159,7 +170,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Variables',
-        `Declare a String variable message with the text "${msg}".`,
+        `Declare a String variable **message** with the text "${msg}".`,
         `^String\\s+message\\s*=\\s*"${escRegex(msg)}"\\s*;?\\s*$`,
         `String text uses double quotes: String message = "${msg}";`,
         `Use: String message = "${msg}";`
@@ -229,7 +240,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Pins',
-        `Read the button on pin ${pin} into a variable named buttonState.`,
+        `Read the button on pin ${pin} into a variable named **buttonState**.`,
         `^int\\s+buttonState\\s*=\\s*digitalRead\\s*\\(\\s*${pin}\\s*\\)\\s*;?\\s*$`,
         `digitalRead returns HIGH or LOW: int buttonState = digitalRead(${pin});`,
         `Use: int buttonState = digitalRead(${pin});`
@@ -300,7 +311,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Conditionals',
-        `Write a one-line if statement: if ${cond}, then run ${body}`,
+        `Write a one-line if statement: if ${boldIdentifiers(cond)}, then run ${boldIdentifiers(body)}`,
         `^if\\s*\\(\\s*${escRegex(cond)}\\s*\\)\\s+${bodyEsc}\\s*;?\\s*$`,
         `Format: if (${cond}) ${body}`,
         `Use: if (${cond}) ${body}`
@@ -319,7 +330,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Loops',
-        `Write a for loop header that counts ${varName} from ${start} up to (but not including) ${end}.`,
+        `Write a for loop header that counts **${varName}** from ${start} up to (but not including) ${end}.`,
         `^for\\s*\\(\\s*int\\s+${escRegex(varName)}\\s*=\\s*${start}\\s*;\\s*${escRegex(varName)}\\s*<\\s*${end}\\s*;\\s*${escRegex(varName)}\\+\\+\\s*\\)\\s*;?\\s*$`,
         `Standard for loop: for (int ${varName} = ${start}; ${varName} < ${end}; ${varName}++)`,
         `Use: for (int ${varName} = ${start}; ${varName} < ${end}; ${varName}++)`
@@ -336,7 +347,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Operators',
-        `Increase the variable ${name} by 1 using the increment operator.`,
+        `Increase the variable **${name}** by 1 using the increment operator.`,
         `^${escRegex(name)}\\+\\+\\s*;?\\s*$`,
         `++ adds 1: ${name}++;`,
         `Use: ${name}++;`
@@ -353,7 +364,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Operators',
-        `Assign ${target} the sum of ${a} and ${b} in one statement.`,
+        `Assign **${target}** the sum of **${a}** and **${b}** in one statement.`,
         `^${escRegex(target)}\\s*=\\s*${escRegex(a)}\\s*\\+\\s*${escRegex(b)}\\s*;?\\s*$`,
         `Addition assignment: ${target} = ${a} + ${b};`,
         `Use: ${target} = ${a} + ${b};`
@@ -367,7 +378,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Pins',
-        `Read analog pin ${pin} into a variable named sensorValue.`,
+        `Read analog pin ${pin} into a variable named **sensorValue**.`,
         `^int\\s+sensorValue\\s*=\\s*analogRead\\s*\\(\\s*${pin}\\s*\\)\\s*;?\\s*$`,
         `analogRead returns 0–1023: int sensorValue = analogRead(${pin});`,
         `Use: int sensorValue = analogRead(${pin});`
@@ -411,7 +422,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Functions',
-        `Call delay using the variable ${name} as the argument.`,
+        `Call delay using the variable **${name}** as the argument.`,
         `^delay\\s*\\(\\s*${escRegex(name)}\\s*\\)\\s*;?\\s*$`,
         `Pass a variable to delay: delay(${name});`,
         `Use: delay(${name});`
@@ -448,7 +459,7 @@ export function buildSyntaxQuestions(): SyntaxQuestion[] {
       q(
         order++,
         'Operators',
-        `Set ${pin} to ${on} when isOn is true, otherwise ${off}, using the ternary operator in digitalWrite.`,
+        `Set **${pin}** to ${on} when **isOn** is true, otherwise ${off}, using the ternary operator in digitalWrite.`,
         `^digitalWrite\\s*\\(\\s*${escRegex(pin)}\\s*,\\s*isOn\\s*\\?\\s*${on}\\s*:\\s*${off}\\s*\\)\\s*;?\\s*$`,
         `Ternary: condition ? valueIfTrue : valueIfFalse`,
         `Use: digitalWrite(${pin}, isOn ? ${on} : ${off});`

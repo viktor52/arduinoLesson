@@ -9,6 +9,7 @@ import type { AdminSyntaxQuestion, SyntaxExamSummary } from '@arduino/shared';
 import { adminApi } from '../../services/api';
 import { Card } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/Loading';
+import { PromptText } from '../../components/ui/PromptText';
 import { useDebounce } from '../../hooks/useUtils';
 import type { AdminUser } from './types';
 
@@ -313,7 +314,7 @@ function QuestionPickRow({
       )}
       <div className="min-w-0">
         <span className="text-xs text-gray-500">#{question.order} · {question.category}</span>
-        <p className="text-sm">{question.prompt}</p>
+        <p className="text-sm"><PromptText text={question.prompt} /></p>
       </div>
     </button>
   );

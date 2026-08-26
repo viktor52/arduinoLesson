@@ -6,6 +6,7 @@ import type { AdminSyntaxQuestion } from '@arduino/shared';
 import { adminApi } from '../../services/api';
 import { Card } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/Loading';
+import { PromptText } from '../../components/ui/PromptText';
 import { useDebounce } from '../../hooks/useUtils';
 
 export function AdminQuestionsPage() {
@@ -129,7 +130,7 @@ function QuestionRow({
             <span className="badge bg-purple-500/20 text-purple-400">{q.category}</span>
             <span className="text-xs text-gray-500 font-mono">{q.id}</span>
           </div>
-          <p className="text-sm font-medium">{q.prompt}</p>
+          <p className="text-sm font-medium"><PromptText text={q.prompt} /></p>
         </div>
         {expanded ? (
           <ChevronUp className="w-5 h-5 text-gray-500 shrink-0" />

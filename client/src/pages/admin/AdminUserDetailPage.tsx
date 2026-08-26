@@ -9,6 +9,7 @@ import type { AdminUserExamResult } from '@arduino/shared';
 import { adminApi, AdminCompletionItem } from '../../services/api';
 import { Card, StatCard, DifficultyBadge } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/Loading';
+import { PromptText } from '../../components/ui/PromptText';
 import { useDebounce } from '../../hooks/useUtils';
 import type { AdminUser } from './types';
 
@@ -355,7 +356,7 @@ function ExamResultRow({
                         </span>
                       )}
                     </div>
-                    <p className="text-sm">{q.prompt}</p>
+                    <p className="text-sm"><PromptText text={q.prompt} /></p>
                     {q.answer !== null ? (
                       <p className="font-mono text-xs text-gray-300 mt-2 bg-black/20 rounded px-2 py-1 break-all">
                         {q.answer}

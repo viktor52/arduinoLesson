@@ -41,6 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  useEffect(() => {
+    const onSessionExpired = () => {
+      setUser(null);
+    };
+    window.addEventListener('auth:session-expired', onSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', onSessionExpired);
+  }, []);
+
   const login = async (email: string, password: string) => {
     const { data } = await authApi.login({ email, password });
     localStorage.setItem('token', data.token);

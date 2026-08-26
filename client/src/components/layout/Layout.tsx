@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Code2, History, Trophy, User, LogOut,
@@ -22,7 +22,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const isOnline = useOnlineStatus();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-surface-950 flex">
@@ -132,7 +138,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </button>
-          <button onClick={() => logout()} className="btn-ghost w-full justify-start text-red-400 hover:text-red-300">
+          <button onClick={handleLogout} className="btn-ghost w-full justify-start text-red-400 hover:text-red-300">
             <LogOut className="w-4 h-4" />
             Logout
           </button>
@@ -249,8 +255,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    window.location.href = '/login';
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -261,8 +266,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) return null;
   if (user?.role !== 'ADMIN') {
-    window.location.href = '/dashboard';
-    return null;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

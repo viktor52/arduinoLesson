@@ -36,11 +36,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config.url?.includes('/auth/')) {
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      window.dispatchEvent(new Event('auth:session-expired'));
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+        window.location.assign('/login');
       }
     }
     return Promise.reject(error);

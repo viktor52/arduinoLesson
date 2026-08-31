@@ -53,12 +53,46 @@ export function createApp() {
   }));
   app.use(express.json({ limit: '1mb' }));
 
-  const limiter = rateLimit({
+  const readLimiter = rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    max: 1000,
+    message: { message: 'Too many requests, please try again later.' },
+    skip: (req) => req.method !== 'GET',
+  });
+
+  const writeLimiter = rateLimit({
     windowMs: config.rateLimit.windowMs,
     max: config.rateLimit.max,
     message: { message: 'Too many requests, please try again later.' },
+    skip: (req) => req.method === 'GET',
   });
-  app.use('/api', limiter);
+
+  const authLimiter = rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    max: 20,
+    message: { message: 'Too many authentication attempts, please try again later.' },
+  });
+
+  const submissionLimiter = rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    max: 100,
+    message: { message: 'Too many submissions, please try again later.' },
+  });
+
+  const hintLimiter = rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    max: 60,
+    message: { message: 'Too many hint requests, please try again later.' },
+  });
+
+  // Read-only requests can be made more frequently; writes use the configured limit.
+  app.use('/api', readLimiter);
+  app.use('/api', writeLimiter);
+
+  // Apply stricter limits on authentication and expensive write operations.
+  app.use('/api/auth', authLimiter);
+  app.use('/api/submission', submissionLimiter);
+  app.use('/api/hint', hintLimiter);
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
